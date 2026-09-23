@@ -1,0 +1,327 @@
+<app-page-header
+  title="Business Profile"
+  subtitle="Manage your organisation information and business details."
+>
+  <button
+    class="primary-btn"
+    type="button"
+    (click)="openCreate()"
+  >
+    + Add Business
+  </button>
+</app-page-header>
+
+@if (error$ | async; as error) {
+  <div class="error-box">
+    ⚠ {{ error }}
+  </div>
+}
+
+@if (loading$ | async) {
+
+  <div class="loading">
+    <div class="spinner"></div>
+    Loading business profiles...
+  </div>
+
+} @else {
+
+  @if ((businesses$ | async)?.length === 0) {
+
+    <section class="empty">
+      <div class="empty-icon">◇</div>
+
+      <h2>No business profile yet</h2>
+
+      <p>
+        Add your organisation details to start using
+        RiskTwin's insurance intelligence features.
+      </p>
+
+      <button
+        class="primary-btn"
+        type="button"
+        (click)="openCreate()"
+      >
+        Create Business Profile
+      </button>
+    </section>
+
+  } @else {
+
+    <section class="business-grid">
+
+      @for (
+        business of (businesses$ | async);
+        track business.id
+      ) {
+
+        <article class="business-card">
+
+          <div class="card-top">
+            <div class="business-icon">
+              ◇
+            </div>
+
+            <span class="status">
+              {{ business.status }}
+            </span>
+          </div>
+
+          <h2>{{ business.businessName }}</h2>
+
+          <p class="industry">
+            {{ business.industry }}
+          </p>
+
+          <div class="details">
+
+            <div>
+              <span>Business Type</span>
+              <strong>{{ business.businessType }}</strong>
+            </div>
+
+            <div>
+              <span>Employees</span>
+              <strong>{{ business.employeeCount }}</strong>
+            </div>
+
+            <div>
+              <span>Annual Revenue</span>
+              <strong>
+                {{ business.annualRevenue | currency:'INR':'symbol':'1.0-0' }}
+              </strong>
+            </div>
+
+            <div>
+              <span>Location</span>
+              <strong>
+                {{ business.city }}, {{ business.state }}
+              </strong>
+            </div>
+
+          </div>
+
+          <div class="card-footer">
+            <small>
+              Registration:
+              {{ business.registrationNumber }}
+            </small>
+
+            <button
+              type="button"
+              (click)="edit(business.id)"
+            >
+              Edit
+            </button>
+          </div>
+
+        </article>
+
+      }
+
+    </section>
+  }
+}
+
+@if (showForm) {
+
+  <div class="modal-backdrop">
+
+    <section class="modal">
+
+      <div class="modal-header">
+        <div>
+          <h2>
+            {{ editingId ? 'Edit Business' : 'Create Business' }}
+          </h2>
+
+          <p>
+            Enter accurate information about your organisation.
+          </p>
+        </div>
+
+        <button
+          class="close"
+          type="button"
+          (click)="closeForm()"
+        >
+          ×
+        </button>
+      </div>
+
+      <form
+        [formGroup]="form"
+        (ngSubmit)="save()"
+      >
+
+        <div class="section-title">
+          Company Information
+        </div>
+
+        <div class="form-grid">
+
+          <label>
+            Business Name
+            <input
+              formControlName="businessName"
+              placeholder="Example Technologies Pvt Ltd"
+            />
+          </label>
+
+          <label>
+            Registration Number
+            <input
+              formControlName="registrationNumber"
+              placeholder="Registration number"
+            />
+          </label>
+
+          <label>
+            Business Type
+            <input
+              formControlName="businessType"
+              placeholder="Private Limited"
+            />
+          </label>
+
+          <label>
+            Industry
+            <input
+              formControlName="industry"
+              placeholder="Technology"
+            />
+          </label>
+
+        </div>
+
+        <div class="section-title">
+          Location & Contact
+        </div>
+
+        <div class="form-grid">
+
+          <label class="wide">
+            Address
+            <input
+              formControlName="address"
+              placeholder="Business address"
+            />
+          </label>
+
+          <label>
+            City
+            <input
+              formControlName="city"
+              placeholder="Hyderabad"
+            />
+          </label>
+
+          <label>
+            State
+            <input
+              formControlName="state"
+              placeholder="Telangana"
+            />
+          </label>
+
+          <label>
+            Postal Code
+            <input
+              formControlName="postalCode"
+              placeholder="500001"
+            />
+          </label>
+
+          <label>
+            Country
+            <input
+              formControlName="country"
+            />
+          </label>
+
+          <label>
+            Contact Email
+            <input
+              type="email"
+              formControlName="contactEmail"
+              placeholder="business@example.com"
+            />
+          </label>
+
+          <label>
+            Contact Phone
+            <input
+              formControlName="contactPhone"
+              placeholder="+91..."
+            />
+          </label>
+
+        </div>
+
+        <div class="section-title">
+          Business Metrics
+        </div>
+
+        <div class="form-grid">
+
+          <label>
+            Annual Revenue
+            <input
+              type="number"
+              formControlName="annualRevenue"
+              min="0"
+            />
+          </label>
+
+          <label>
+            Employee Count
+            <input
+              type="number"
+              formControlName="employeeCount"
+              min="1"
+            />
+          </label>
+
+          <label>
+            Established Date
+            <input
+              type="date"
+              formControlName="establishedDate"
+            />
+          </label>
+
+        </div>
+
+        <div class="form-actions">
+
+          <button
+            type="button"
+            class="secondary-btn"
+            (click)="closeForm()"
+          >
+            Cancel
+          </button>
+
+          <button
+            type="submit"
+            class="primary-btn"
+            [disabled]="form.invalid || (saving$ | async)"
+          >
+            @if (saving$ | async) {
+              Saving...
+            } @else {
+              {{ editingId ? 'Save Changes' : 'Create Profile' }}
+            }
+          </button>
+
+        </div>
+
+      </form>
+
+    </section>
+
+  </div>
+}
+
+
