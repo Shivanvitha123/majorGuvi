@@ -1,0 +1,3 @@
+org\example\underwritingpolicyservice\security\JwtServiceTest.class
+org\example\underwritingpolicyservice\service\PolicyServiceTest.class
+org\example\underwritingpolicyservice\UnderwritingPolicyServiceApplicationTests.class
